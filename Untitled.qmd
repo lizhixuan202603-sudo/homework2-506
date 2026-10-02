@@ -1,6 +1,8 @@
 ---
 title: "homework2-506"
 format: html
+  html:
+    embed-resources: true
 editor: visual
 ---
 This is a link for hw2: https://github.com/lizhixuan202603-sudo/homework2-506
