@@ -6,8 +6,8 @@ format:
     embed-resources: true
 editor: visual
 ---
-This is a link for hw2: https://github.com/lizhixuan202603-sudo/homework2-506
 
+Link to the repository: <https://github.com/lizhixuan202603-sudo/homework2-506>
 
 ```{r setup}
 #| message: false
@@ -626,10 +626,6 @@ danger	     0.39657536	      0.39657536
 year	       0.03179813	      0.03179813
 
 The two sets of estimates and standard errors agree to machine precision, confirming that R's lm() uses exactly the closed-form least-squares solution beta-hat = (X'X)^(-1) X'y.
-
-
-
-
 
 
 
