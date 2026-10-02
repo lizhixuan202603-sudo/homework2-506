@@ -2234,7 +2234,7 @@ vertical-align: -.125em;
 </header>
 
 
-<p>Link to the repository: <a href="https://github.com/lizhixuan202603-sudo/homework2-506" class="uri">https://github.com/lizhixuan202603-sudo/homework2-506</a></p>
+<p>This is a link for hw2: https://github.com/lizhixuan202603-sudo/homework2-506</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(microbenchmark)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
@@ -2526,21 +2526,21 @@ integer overflows</code></pre>
 <span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(bench_small)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: microseconds
-  expr      min       lq      mean   median       uq      max neval cld
-  loop 1083.999 1178.996 1268.9598 1213.169 1274.895 2394.482    50  a 
- apply  366.581  379.127  390.1609  385.236  400.529  440.381    50   b</code></pre>
+  expr      min       lq      mean    median       uq      max neval cld
+  loop 1067.230 1167.311 1244.1729 1190.4760 1238.774 2256.722    50  a 
+ apply  350.673  369.205  381.1622  374.6375  385.769  437.306    50   b</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(bench_large)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: milliseconds
-  expr       min        lq     mean    median        uq       max neval cld
-  loop 120.66275 121.21994 133.9717 128.53402 129.09092 170.35090     5  a 
- apply  40.02145  43.47156  43.9312  43.53216  45.17774  47.45307     5   b</code></pre>
+  expr       min        lq      mean    median        uq       max neval cld
+  loop 120.08744 122.34810 124.09536 122.67524 127.34559 128.02041     5  a 
+ apply  39.58874  40.92718  42.64425  42.59703  43.21753  46.89076     5   b</code></pre>
 </div>
 </div>
 <p><strong>Conclusions.</strong></p>
 <ol type="i">
-<li><p><strong>Which is faster?</strong> At small scale the two are close, but in this implementation the <code>for</code> loop (<code>momentum_walk1</code>) is usually slightly faster, because <code>sapply</code> calls an anonymous function on every iteration, which carries non-trivial overhead.</p></li>
+<li><p><strong>Which is faster?</strong> In this implementation, the sapply version is faster than the for loop, and the gap widens as n grows. The reason is that the sapply version generates the random draws and the “keep” decisions vectorially first, and then resolves directions in a single apply pass, whereas the for loop pays R-level loop overhead on every iteration.</p></li>
 <li><p><strong>Does the difference grow with n?</strong> Yes. As n grows, <code>sapply</code>’s function-call count grows linearly, and the overhead accumulates more.</p></li>
 <li><p><strong>Why do the runtimes differ?</strong> Two main reasons: (1) R’s <code>for</code> loop has been optimized over the years and is not necessarily slower than the apply family; (2) <code>sapply</code> constructs a new environment and calls a function on each iteration, adding function-call overhead. The apply family only truly shines when its body is itself vectorized (e.g., using <code>cumsum</code> or <code>Reduce</code>).</p></li>
 </ol>
@@ -2668,13 +2668,11 @@ comment_count   comment_count     188.6396     10      9190  7.884004  18.46847<
 </div>
 <section id="classification-of-each-outcome" class="level3">
 <h3 class="anchored" data-anchor-id="classification-of-each-outcome">Classification of each outcome</h3>
-<ul>
-<li><strong><code>view_count</code> — (2) Transform.</strong> Extremely right-skewed (skewness = 8.50, zero-percent = 0%); the maximum (1.5e8) is roughly 50x the median (1.2e6). Use <code>log(view_count + 1)</code>.</li>
-<li><strong><code>like_count</code> — (2) Transform.</strong> Strongly right-skewed (skewness = 10.11); a handful of ads get millions of likes, most get far fewer. Use <code>log(like_count + 1)</code>.</li>
-<li><strong><code>dislike_count</code> — (2) Transform.</strong> Right-skewed (skewness = 8.05) with several zeros. Use <code>log(dislike_count + 1)</code>.</li>
-<li><strong><code>favorite_count</code> — (3) Not appropriate.</strong> Extremely sparse (about 15% of ads have exactly 0), with a heavy right tail (skewness = 12.05). The “favorite” feature was retired by YouTube, so this variable is mostly noise and not suitable as a linear-regression outcome.</li>
-<li><strong><code>comment_count</code> — (2) Transform.</strong> Heavily right-skewed (skewness = 12.95). Use <code>log(comment_count + 1)</code>.</li>
-</ul>
+<p>view_count — (2) Transform. Extremely right-skewed (skewness = 13.63, zero-percent = 0%); the maximum (1.76e8) is roughly 4000x the median (4.14e4). Use log(view_count + 1).</p>
+<p>like_count — (2) Transform. Strongly right-skewed (skewness = 8.66, zero-percent = 4.00%); a handful of ads get hundreds of thousands of likes while most get far fewer. Use log(like_count + 1).</p>
+<p>dislike_count — (2) Transform. Right-skewed (skewness = 11.40, zero-percent = 20.89%). Use log(dislike_count + 1).</p>
+<p>favorite_count — (3) Not appropriate. Every value is exactly 0 (zero-percent = 100%), so the skewness is undefined (NaN). Because the variable has no variation at all, it cannot be used as a regression outcome. (The “favorite” feature was retired by YouTube, so this column carries no information.)</p>
+<p>comment_count — (2) Transform. Heavily right-skewed (skewness = 7.88, zero-percent = 18.47%). Use log(comment_count + 1).</p>
 </section>
 <section id="apply-all-data-prep-binary-coercion-log-transform" class="level3">
 <h3 class="anchored" data-anchor-id="apply-all-data-prep-binary-coercion-log-transform">Apply all data prep: binary coercion + log transform</h3>
@@ -2718,7 +2716,7 @@ comment_count   comment_count     188.6396     10      9190  7.884004  18.46847<
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>              <span class="sc">%in%</span> <span class="fu">names</span>(youtube_clean)))</span>
 <span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(binary_vars <span class="sc">%in%</span> <span class="fu">names</span>(youtube_clean)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><strong>Interpretation.</strong> <code>log_view</code>, <code>log_like</code>, and <code>log_comment</code> are now approximately symmetric (|skewness| &lt; 0.7). <code>log_dislike</code> retains mild right-skew (skewness = 1.33) but is dramatically improved over the raw scale. All seven binary predictors are now numeric 0/1.</p>
+<p><strong>Interpretation.</strong> log_view, log_like, and log_comment are now approximately symmetric (|skewness| &lt; 0.7). log_dislike retains mild right-skew (skewness = 1.33) but is dramatically improved over the raw scale. All seven binary predictors are now numeric 0/1. favorite_count is dropped entirely: it is constant at 0, so it carries no information and cannot serve as a regression outcome.</p>
 </section>
 </section>
 <section id="c.-fitting-linear-regression-models" class="level2">
@@ -2804,7 +2802,8 @@ comment_count   comment_count     188.6396     10      9190  7.884004  18.46847<
 #   n_used &lt;int&gt;</code></pre>
 </div>
 </div>
-<p><strong>Written answer.</strong> Of the 247 ads in the cleaned dataset, <strong>231</strong> are used in every <code>log_view</code> model (16 rows have missing values in <code>log_view</code> or <code>year</code>); the other outcomes use <strong>225</strong> (<code>log_like</code>, <code>log_dislike</code>) and <strong>222</strong> (<code>log_comment</code>) observations. After adjusting for <code>year</code>, <strong>none</strong> of the seven binary commercial characteristics is statistically significant at alpha = 0.05 for any of the four engagement outcomes. The smallest p-value across all 28 models is <strong>0.0941</strong> (for <code>log_view ~ danger</code>), which is marginally non-significant.</p>
+<p><strong>Written answer.</strong> Of the 247 ads in the cleaned dataset, 231 are used in every log_view model (16 rows have missing values in log_view or year); the other outcomes use 225 (log_like, log_dislike) and 222 (log_comment) observations. favorite_count is excluded entirely because it is constant at 0.</p>
+<p>After adjusting for year, none of the seven binary commercial characteristics is statistically significant at alpha = 0.05 for any of the four engagement outcomes. The smallest p-value across all 28 models is 0.0941 (for log_view ~ danger), which is marginally non-significant.</p>
 <p><strong>Sensitivity check.</strong> To verify that <code>year</code> is not masking the effect of <code>funny</code>, we compare <code>lm(log_view ~ funny + year)</code> with <code>lm(log_view ~ funny)</code>:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>m_with    <span class="ot">&lt;-</span> <span class="fu">lm</span>(log_view <span class="sc">~</span> funny <span class="sc">+</span> year, <span class="at">data =</span> youtube_clean)</span>
@@ -2830,7 +2829,7 @@ comment_count   comment_count     188.6396     10      9190  7.884004  18.46847<
 #   n_used &lt;int&gt;, direction &lt;lgl&gt;</code></pre>
 </div>
 </div>
-<p><strong>Written answer.</strong> <strong>Not applicable.</strong> No association reached alpha = 0.05 in any of the 28 models, so there is no significant positive or negative association to report. A few coefficients fall in the “marginally significant” range (0.05 &lt; p &lt; 0.10) — for example, <code>danger</code> on <code>log_view</code> with beta-hat = <strong>0.667</strong> and p = <strong>0.0941</strong> — suggesting weak positive associations that a larger sample might confirm, but none crosses the stated significance threshold.</p>
+<p><strong>Written answer.</strong> <strong>Not applicable.</strong> No association reached alpha = 0.05 in any of the 28 models, so there is no significant positive or negative association to report. A few coefficients fall in the “marginally significant” range (0.05 &lt; p &lt; 0.10) — for example, danger on log_view with beta-hat = 0.667 and p = 0.0941 — suggesting a weak positive association that a larger sample might confirm, but none crosses the stated significance threshold.</p>
 </section>
 <section id="c-3.-largest-positive-association-with-view-counts" class="level3">
 <h3 class="anchored" data-anchor-id="c-3.-largest-positive-association-with-view-counts">3c-3. Largest positive association with view counts</h3>
@@ -2847,7 +2846,7 @@ comment_count   comment_count     188.6396     10      9190  7.884004  18.46847<
 1 log_view danger    0.667  0.0941    231</code></pre>
 </div>
 </div>
-<p><strong>Written answer.</strong> Among all predictors with a positive estimated coefficient on <code>log_view</code>, the largest is <strong><code>danger</code></strong> with beta-hat = <strong>0.667</strong> (p = <strong>0.0941</strong>, n = 231). However, this association is <strong>not statistically significant</strong> at alpha = 0.05. Because the outcome is on the <code>log(x + 1)</code> scale, the point estimate corresponds to an approximate <code>exp(0.667) - 1 = 94.8%</code> increase in view counts for ads that feature danger, holding year fixed. But this estimate is not distinguishable from zero at the standard significance level.</p>
+<p><strong>Written answer.</strong> Among all predictors with a positive estimated coefficient on log_view, the largest is danger with beta-hat = 0.667 (p = 0.0941, n = 231). However, this association is not statistically significant at alpha = 0.05. Because the outcome is on the log(x + 1) scale, the point estimate corresponds to an approximate exp(0.667) - 1 = 94.8% increase in view counts for ads that feature danger, holding year fixed. But this estimate is not distinguishable from zero at the standard significance level, so it should be reported as suggestive rather than conclusive.</p>
 </section>
 </section>
 <section id="d.-estimating-regression-coefficients-using-matrix-algebra" class="level2">
@@ -2944,70 +2943,22 @@ danger           danger  0.39657536  0.39657536
 year               year  0.03179813  0.03179813</code></pre>
 </div>
 </div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(<span class="fu">as.vector</span>(beta_hat), <span class="fu">as.vector</span>(<span class="fu">coef</span>(m_lm)), <span class="at">tolerance =</span> <span class="fl">1e-8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+</div>
 </section>
 <section id="written-answer" class="level3">
 <h3 class="anchored" data-anchor-id="written-answer">Written answer</h3>
-<p>From the 28 models in 3c, the binary characteristic with the smallest p-value for <code>log_view</code> is <strong><code>danger</code></strong> (beta-hat = 0.667, p = 0.0941). We fit the model</p>
+<p>From the 28 models in 3c, the binary characteristic with the smallest p-value for log_view is danger (beta-hat = 0.667, p = 0.0941). We fit the model</p>
 <p>log_view = beta_0 + beta_1 * danger + beta_2 * year + epsilon</p>
 <p>using two approaches. First, we constructed the design matrix X = [1, danger, year] with an intercept column, removed rows with missing values consistently from y and X (leaving n = 231), and computed the closed-form least-squares estimate beta-hat = (X’X)^(-1) X’y via solve() and %*%. Second, we fit the same model with lm().</p>
 <p>Estimated coefficients:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Term</th>
-<th>Matrix estimate</th>
-<th>lm() estimate</th>
-<th>Absolute difference</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>(Intercept)</td>
-<td>-31.39149243</td>
-<td>-31.39149243</td>
-<td>3.83e-10</td>
-</tr>
-<tr class="even">
-<td>danger</td>
-<td>0.66678076</td>
-<td>0.66678076</td>
-<td>2.86e-13</td>
-</tr>
-<tr class="odd">
-<td>year</td>
-<td>0.02065641</td>
-<td>0.02065641</td>
-<td>1.49e-13</td>
-</tr>
-</tbody>
-</table>
+<p>Term Matrix estimate lm() estimate Absolute difference (Intercept) -31.39149243 -31.39149243 3.83e-10 danger 0.66678076 0.66678076 2.86e-13 year 0.02065641 0.02065641 1.49e-13</p>
 <p>Standard errors computed from sigma^2 * (X’X)^(-1) also match lm()’s standard errors to machine precision:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Term</th>
-<th>Matrix SE</th>
-<th>lm() SE</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>(Intercept)</td>
-<td>63.93249584</td>
-<td>63.93249584</td>
-</tr>
-<tr class="even">
-<td>danger</td>
-<td>0.39657536</td>
-<td>0.39657536</td>
-</tr>
-<tr class="odd">
-<td>year</td>
-<td>0.03179813</td>
-<td>0.03179813</td>
-</tr>
-</tbody>
-</table>
+<p>Term Matrix SE lm() SE (Intercept) 63.93249584 63.93249584 danger 0.39657536 0.39657536 year 0.03179813 0.03179813</p>
 <p>The two sets of estimates and standard errors agree to machine precision, confirming that R’s lm() uses exactly the closed-form least-squares solution beta-hat = (X’X)^(-1) X’y.</p>
 </section>
 </section>
