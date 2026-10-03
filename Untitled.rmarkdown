@@ -647,3 +647,4 @@ Standard errors computed from sigma\^2 \* (X'X)\^(-1) also match lm()'s standard
 Term Matrix SE lm() SE (Intercept) 63.93249584 63.93249584 danger 0.39657536 0.39657536 year 0.03179813 0.03179813
 
 The two sets of estimates and standard errors agree to machine precision, confirming that R's lm() uses exactly the closed-form least-squares solution beta-hat = (X'X)\^(-1) X'y.
+

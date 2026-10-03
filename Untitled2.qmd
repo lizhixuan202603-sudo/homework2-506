@@ -7,7 +7,7 @@ format:
 editor: visual
 ---
 
-This is a link for hw2: https://github.com/lizhixuan202603-sudo/homework2-506
+Link to the repository: <https://github.com/lizhixuan202603-sudo/homework2-506>
 
 ```{r setup}
 #| message: false
@@ -263,62 +263,11 @@ print(bench_large)
 
 **Conclusions.**
 
-i.**Which implementation is faster?**
-momentum_walk2 (the apply-based implementation) is faster
-than momentum_walk1 (the for-loop implementation). At n = 1,000,
-the median runtimes are 2,613 µs for the loop version and
-778 µs for the apply version. At n = 100,000, they are
-287 ms vs 91 ms. The apply version is approximately
-3× faster at both scales, and the cld letters
-(a for loop, b for apply) confirm the difference is
-statistically significant.
+i.  **Which is faster?** In this implementation, the sapply version is faster than the for loop, and the gap widens as n grows. The reason is that the sapply version generates the random draws and the "keep" decisions vectorially first, and then resolves directions in a single apply pass, whereas the for loop pays R-level loop overhead on every iteration.
 
-ii. **Does the difference become larger for the larger input?**
-The absolute difference grows, but the ratio stays roughly
-constant. At n = 1,000 the gap between the two median runtimes is
-about 1.8 ms; at n = 100,000 it grows to about 196 ms.
-However, the apply version remains roughly 3× faster in both
-cases. So while the absolute performance gap widens as n grows,
-the relative advantage of momentum_walk2 does not shrink or
-grow — it is essentially a constant multiplicative speedup.
+ii. **Does the difference grow with n?** Yes. As n grows, `sapply`'s function-call count grows linearly, and the overhead accumulates more.
 
-iii. **Why might the implementations have different execution times?**
-The apply version is faster because it vectorizes the two most
-expensive operations of the simulation.
-
-**1. Random number generation.**
-momentum_walk2 draws all runif(n - 1) values and all
-sample(1:4, n, replace = TRUE) directions in one batch before
-the sapply loop begins. momentum_walk1, by contrast, calls
-runif() and sample() once per step inside the for loop.
-Vectorized random-number generation is dramatically cheaper per
-draw, so this saves a large amount of time when n is large.
-
-**2. Coordinate accumulation.**
-After the sapply call resolves every step's direction into a
-vector idx, momentum_walk2 computes the final position with two
-sum() calls on the entire direction matrix:
-sum(xy[, 1]) and sum(xy[, 2]). This is a single vectorized
-operation. momentum_walk1, in contrast, updates x and y
-one step at a time inside the loop, which forces R to perform
-n individual additions in interpreted code.
-
-**The remaining sequential part.**
-The only inherently sequential part of momentum_walk2 is the
-sapply(2:n, ...) that resolves each step's direction from the
-previous one, because the momentum rule requires that step *i*
-depend on step i - 1. That work cannot be vectorized. However,
-resolving a direction is far cheaper than drawing a random number
-or performing a coordinate update, so the overall runtime is
-dominated by the vectorized parts, and the apply version wins.
-
-**A note on the sapply internals.**
-Although sapply does call an anonymous function once per
-iteration, that cost is dwarfed by the savings from vectorized
-random-number generation and coordinate accumulation. In this
-implementation, the sapply call is doing only the minimal work
-that truly has to be sequential, and everything else is
-vectorized.
+iii. **Why do the runtimes differ?** Two main reasons: (1) R's `for` loop has been optimized over the years and is not necessarily slower than the apply family; (2) `sapply` constructs a new environment and calls a function on each iteration, adding function-call overhead. The apply family only truly shines when its body is itself vectorized (e.g., using `cumsum` or `Reduce`).
 
 # Problem 2: Monte Carlo Simulation of Campus Bus Arrivals
 
@@ -340,8 +289,7 @@ set.seed(506)
 n_days <- 10000
 daily  <- replicate(n_days, simulate_one_day())
 
-cat("The expected total number of passengers who board the bus per day is:", 
-    round(mean(daily)), "\n")
+mean(daily)
 ```
 
 **Interpretation.** From the expectations of each block:
@@ -423,13 +371,13 @@ par(mfrow = c(1, 1))
 
 ### Classification of each outcome
 
-view_count — (2) Transform. Extremely right-skewed (skewness = 13.63, zero-percent = 0%); the maximum (1.76e8) is roughly 4250x the median (4.14e4). Use log(view_count + 1).
+view_count — (2) Transform. Extremely right-skewed (skewness = 13.63, zero-percent = 0%); the maximum (1.76e8) is roughly 4000x the median (4.14e4). Use log(view_count + 1).
 
 like_count — (2) Transform. Strongly right-skewed (skewness = 8.66, zero-percent = 4.00%); a handful of ads get hundreds of thousands of likes while most get far fewer. Use log(like_count + 1).
 
 dislike_count — (2) Transform. Right-skewed (skewness = 11.40, zero-percent = 20.89%). Use log(dislike_count + 1).
 
-favorite_count — (3) Not appropriate. Every value is exactly 0 (zero-percent = 100%), so the skewness is undefined (NaN). Because the variable has no variation at all, it cannot be used as a regression outcome. (The "favorite" feature was retired by YouTube, so this column carries no information.) Therefore, favorite_count is excluded from further analysis in 3c and 3d.
+favorite_count — (3) Not appropriate. Every value is exactly 0 (zero-percent = 100%), so the skewness is undefined (NaN). Because the variable has no variation at all, it cannot be used as a regression outcome. (The "favorite" feature was retired by YouTube, so this column carries no information.)
 
 comment_count — (2) Transform. Heavily right-skewed (skewness = 7.88, zero-percent = 18.47%). Use log(comment_count + 1).
 
@@ -461,7 +409,7 @@ stopifnot(all(c("log_view", "log_like", "log_dislike", "log_comment")
 stopifnot(all(binary_vars %in% names(youtube_clean)))
 ```
 
-**Interpretation.** log_view, log_like, and log_comment are now approximately symmetric (\|skewness\| \< 0.7). log_dislike retains mild right-skew (skewness = 1.33) but is dramatically improved over the raw scale. All seven binary predictors are now numeric 0/1. favorite_count is dropped entirely: it is constant at 0, so it carries no information and cannot serve as a regression outcome. All seven binary predictors are now numeric 0/1.
+**Interpretation.** log_view, log_like, and log_comment are now approximately symmetric (\|skewness\| \< 0.7). log_dislike retains mild right-skew (skewness = 1.33) but is dramatically improved over the raw scale. All seven binary predictors are now numeric 0/1. favorite_count is dropped entirely: it is constant at 0, so it carries no information and cannot serve as a regression outcome.
 
 ## 3c. Fitting linear regression models
 
